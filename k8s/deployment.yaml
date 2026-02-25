@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kubernates-demo-api-api
+  labels: 
+    app: kubernates-demo-api-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: kubernates-demo-api-api
+  template:
+    metadata:
+      labels:
+        app: kubernates-demo-api-api
+    spec:
+      containers:
+        - name: kubernates-demo-api-api
+          image: benandoh1996/kubernates-demo-api-api:latest
+          ports:
+            - containerPort: 3030
+          env:
+            - name: NODE_ENV
+              value: "production"
+
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+                  
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "250m"
+              memory: "256Mi"
+
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 3030
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 3030
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 3
